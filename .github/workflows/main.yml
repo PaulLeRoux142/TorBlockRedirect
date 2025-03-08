@@ -1,3 +1,13 @@
+name: Go Matrix
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
 jobs:
   main:
     name: Main Process
