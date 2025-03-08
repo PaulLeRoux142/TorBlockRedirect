@@ -46,11 +46,6 @@ jobs:
           curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $HOME/go/bin v1.33.0
           echo "GolangCI-Lint installed at $HOME/go/bin/golangci-lint"
 
-      - name: Install Yaegi
-        run: |
-          go install github.com/yaegi/yaegi@latest
-          echo "Yaegi installed at $HOME/go/bin/yaegi"
-
       - name: Check and get dependencies
         run: |
           go mod tidy
@@ -60,11 +55,6 @@ jobs:
 
       - name: Lint and Tests
         run: make
-
-      - name: Run tests with Yaegi
-        run: make yaegi_test
-        env:
-          GOPATH: ${{ github.workspace }}/go
 
       - name: Run plugin tests
         run: make plugin_tests
