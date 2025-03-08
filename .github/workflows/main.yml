@@ -39,7 +39,7 @@ jobs:
 
       # Cache Go modules to speed up builds
       - name: Cache Go modules
-        uses: actions/cache@v3  # Обновлена версия
+        uses: actions/cache@v3
         with:
           path: ${{ github.workspace }}/go/pkg/mod
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
@@ -70,7 +70,9 @@ jobs:
 
       # Lint and Tests
       - name: Lint and Tests
-        run: make
+        run: |
+          golangci-lint run  # Добавьте явный вызов golangci-lint, если в Makefile это не сделано
+          make
 
       # Run tests with Yaegi
       - name: Run tests with Yaegi
