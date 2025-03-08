@@ -2,16 +2,10 @@
 
 export GO111MODULE=on
 
-# Убедимся, что golangci-lint установлен
-GOLANGCI_LINT := $(shell which golangci-lint)
+default: lint test
 
-# Если golangci-lint не найден, то устанавливаем его
 lint:
-	@if [ -z "$(GOLANGCI_LINT)" ]; then \
-		echo "golangci-lint не найден. Устанавливаю..."; \
-		curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.33.0; \
-	fi
-	$(GOLANGCI_LINT) run
+	$(HOME)/go/bin/golangci-lint run
 
 test:
 	go test -v -cover ./...

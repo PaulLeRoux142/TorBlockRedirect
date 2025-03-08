@@ -12,7 +12,6 @@ jobs:
         working-directory: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}
 
     steps:
-
       # Set up Go environment
       - name: Set up Go ${{ env.GO_VERSION }}
         uses: actions/setup-go@v2
@@ -35,7 +34,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
 
-      # Install golangci-lint
+      # Install golangci-lint in a local directory
       - name: Install golangci-lint ${{ env.GOLANGCI_LINT_VERSION }}
         run: |
           mkdir -p $HOME/go/bin
