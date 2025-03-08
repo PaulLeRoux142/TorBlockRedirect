@@ -1,0 +1,29 @@
+version: "3.3"
+services:
+
+  traefik:
+    image: traefik:latest
+    command:
+      - --api.insecure=true
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+      - --experimental.localPlugins.TorBlockRedirect.moduleName=github.com/PaulLeRoux142/TorBlockRedirect
+    ports:
+      - 80:80
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ../.:/plugins-local/src/github.com/PaulLeRoux142/TorBlockRedirect
+
+  whoami:
+    image: traefik/whoami:latest
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.whoami.rule=Host(`localhost`)
+      - traefik.http.routers.whoami.entrypoints=web
+      - traefik.http.middlewares.block-tor-middleware.plugin.TorBlockRedirect.enabled=true
+      - traefik.http.middlewares.block-tor-middleware.plugin.TorBlockRedirect.AddressListURL=https://check.torproject.org/exit-addresses
+      - traefik.http.middlewares.block-tor-middleware.plugin.TorBlockRedirect.UpdateInterval=3600
+      - traefik.http.middlewares.block-tor-middleware.plugin.TorBlockRedirect.OnionHostname=2gzyxa5ihm7nsggfxnu52rck2vv4rvmdlkiu3zzui5du4xyclen53wid.onion
+      - traefik.http.middlewares.block-tor-middleware.plugin.TorBlockRedirect.ForwardedHeadersCustomName=CF_CONNECTING_IP
+      - traefik.http.routers.whoami.middlewares=block-tor-middleware@docker

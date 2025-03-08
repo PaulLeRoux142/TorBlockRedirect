@@ -1,0 +1,13 @@
+displayName: TorBlockRedirect
+type: middleware
+
+import: github.com/PaulLeRoux142/TorBlockRedirect
+
+summary: 'Blocks Tor exit nodes from accessing services'
+
+testData:
+  Enabled: true # default 'true'
+  AddressListURL: "https://check.torproject.org/exit-addresses" # default 'https://check.torproject.org/exit-addresses'
+  UpdateInterval: 3600 # default '3600'
+  OnionHostname: "2gzyxa5ihm7nsggfxnu52rck2vv4rvmdlkiu3zzui5du4xyclen53wid.onion" # default ''
+  ForwardedHeadersCustomName: "CF_CONNECTING_IP" # default 'X-Forwarded-For'
