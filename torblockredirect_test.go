@@ -69,7 +69,7 @@ func TestRequests(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	req.RemoteAddr = fmt.Sprintf("%s:%d", badIP, 1234)
+	req.RemoteAddr = fmt.Sprintf("%s", badIP)
 	recorder := httptest.NewRecorder()
 	handler.ServeHTTP(recorder, req)
 	if recorder.Result().StatusCode != http.StatusForbidden {
@@ -81,7 +81,7 @@ func TestRequests(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	req.RemoteAddr = fmt.Sprintf("%s:%d", goodIP, 1234)
+	req.RemoteAddr = fmt.Sprintf("%s", goodIP)
 	recorder = httptest.NewRecorder()
 	handler.ServeHTTP(recorder, req)
 	if recorder.Result().StatusCode != http.StatusNoContent {
