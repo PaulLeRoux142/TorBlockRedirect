@@ -61,7 +61,7 @@ func TestRequests(t *testing.T) {
 	}
 
 	// Dummy IPs
-	const badIP = "176.10.99.200"
+	const badIP = "192.42.116.187"
 	const goodIP = "127.0.0.1"
 
 	// Blocked IP
