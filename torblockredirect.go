@@ -114,7 +114,7 @@ func (a *TorBlock) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	isTorBlocked := true
+	isTorBlocked := false
 
 	// Check if the IP is in the blocked IPv4 set
 	if remoteIP.To4() != nil {
