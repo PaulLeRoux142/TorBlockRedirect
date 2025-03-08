@@ -3,10 +3,10 @@ name: Go Matrix
 on:
   push:
     branches:
-      - main  # или используйте 'master', в зависимости от вашей основной ветки
+      - main
   pull_request:
     branches:
-      - main  # или 'master'
+      - main
 
 jobs:
   cross:
@@ -43,6 +43,12 @@ jobs:
           key: ${{ runner.os }}-${{ matrix.go-version }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-${{ matrix.go-version }}-go-
+
+      # Install golangci-lint
+      - name: Install golangci-lint
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $HOME/go/bin v1.33.0
+          echo "GolangCI-Lint installed at $HOME/go/bin/golangci-lint"
 
       # Check and install dependencies
       - name: Check and get dependencies
