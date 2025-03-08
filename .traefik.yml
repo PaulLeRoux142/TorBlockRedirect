@@ -9,5 +9,7 @@ testData:
   Enabled: true # default 'true'
   AddressListURL: "https://check.torproject.org/exit-addresses" # default 'https://check.torproject.org/exit-addresses'
   UpdateInterval: 3600 # default '3600'
-  OnionHostname: "2gzyxa5ihm7nsggfxnu52rck2vv4rvmdlkiu3zzui5du4xyclen53wid.onion" # default ''
+  RedirectProtocol: "http://" # default 'http://'
+  RedirectHostname: "2gzyxa5ihm7nsggfxnu52rck2vv4rvmdlkiu3zzui5du4xyclen53wid.onion" # default ''
+  RedirectSavePath: true # default 'true'
   ForwardedHeadersCustomName: "CF_CONNECTING_IP" # default 'X-Forwarded-For'

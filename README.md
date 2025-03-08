@@ -1,6 +1,6 @@
 # TorBlockRedirect
 
-TorBlockRedirect is a [Traefik](https://traefik.io) plugin that can block requests originating from the Tor network. The publicly available list of Tor exit nodes (`https://check.torproject.org/exit-addresses`) is fetched regularly to identify requests to block. The plugin also supports redirecting requests from Tor users to an onion site if the `OnionHostname` configuration is set. Additionally, the plugin now supports both IPv4 and IPv6 address blocking.
+TorBlockRedirect is a [Traefik](https://traefik.io) plugin that can block requests originating from the Tor network. The publicly available list of Tor exit nodes (`https://check.torproject.org/exit-addresses`) is fetched regularly to identify requests to block. The plugin also supports redirecting requests from Tor users to an onion site if the `RedirectHostname` configuration is set. Additionally, the plugin now supports both IPv4 and IPv6 address blocking.
 
 ## Configuration
 
@@ -22,7 +22,7 @@ experimental:
   plugins:
     torblockredirect:
       moduleName: github.com/PaulLeRoux142/TorBlockRedirect
-      version: v0.1.2
+      version: v0.1.3
 ```
 
 Here is an example of a file provider dynamic configuration (given here in YAML), where the interesting part is the http.middlewares section:
@@ -52,7 +52,9 @@ http:
         torblockredirect:
           enabled: true # default 'true'
 #          UpdateIntervalSeconds: 3600 # default '3600'
-#          OnionHostname: "YOUR_ONION_DOMAIN.onion" # default '' - block tor users if not set
+          RedirectProtocol: "http://" # default 'http://'
+          RedirectHostname: "youroniondomain.onion" # default ''
+#          RedirectSavePath: true # default 'true'
 #          AddressListURL: "https://www.dan.me.uk/torlist/?exit" # default 'https://check.torproject.org/exit-addresses'
 #          ForwardedHeadersCustomName: "CF_CONNECTING_IP" # default 'X-Forwarded-For'
 ```
@@ -122,7 +124,9 @@ http:
         torblockredirect:
           enabled: true # default 'true'
 #          UpdateIntervalSeconds: 3600 # default '3600'
-#          OnionHostname: "YOUR_ONION_DOMAIN.onion" # default '' - block tor users if not set
+          RedirectProtocol: "http://" # default 'http://'
+          RedirectHostname: "youroniondomain.onion" # default ''
+#          RedirectSavePath: true # default 'true'
 #          AddressListURL: "https://www.dan.me.uk/torlist/?exit" # default 'https://check.torproject.org/exit-addresses'
 #          ForwardedHeadersCustomName: "CF_CONNECTING_IP" # default 'X-Forwarded-For'
 ```
@@ -130,12 +134,13 @@ http:
 ## Features
 
 - **Block Tor Requests**: The plugin blocks incoming requests from the Tor network.
-- **Redirect to Onion Site**: If the `OnionHostname` configuration is set, requests from Tor users will be redirected to the specified `.onion` domain.
+- **Redirect to Onion Site**: If the `RedirectHostname` configuration is set, requests from Tor users will be redirected to this `.onion` site.
 - **IPv6 Support**: The plugin now supports both IPv4 and IPv6 addresses when identifying and blocking Tor exit node IPs.
+- **Save Original URL Path**: The plugin allows saving the original request URL path when redirecting Tor users to the `.onion` site, if `RedirectSavePath` is set to `true`.
 
 ### Examples
 
-You can also see a working example docker-compose.yml in the examples directory, which loads the plugin in local mode.
+You can also see a working example `docker-compose.yml` in the `examples` directory, which loads the plugin in local mode.
 ```
 ./examples/docker-compose.yml
 ```
@@ -145,7 +150,9 @@ You can also see a working example docker-compose.yml in the examples directory,
 The plugin supports the following configuration options:
 
 - `enabled`: Enables or disables the plugin. Default is `true`.
-- `OnionHostname`: If set, requests from Tor users will be redirected to this `.onion` site.
+- `RedirectProtocol`: The protocol (http/https) to use when redirecting. Default is `http://`.
+- `RedirectHostname`: If set, requests from Tor users will be redirected to this `.onion` site.
+- `RedirectSavePath`: If set to `true`, the plugin will save the original request path in the redirect URL. Default is `true`.
 - `UpdateIntervalSeconds`: Interval in seconds for updating the list of blocked Tor exit nodes. Default is `3600` (1 hour).
 - `AddressListURL`: URL to fetch the list of Tor exit nodes. Default is `https://check.torproject.org/exit-addresses`.
 - `ForwardedHeadersCustomName`: Header name for the forwarded client IP address. Default is `X-Forwarded-For`.

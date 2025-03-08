@@ -115,3 +115,18 @@ func (s *IPv4Set) ContainsIPv4(ip IPv4) bool {
 func (s *IPv6Set) ContainsIPv6(ip IPv6) bool {
 	return s.set[ip]
 }
+
+
+// Добавление всех IP-адресов из другого набора IPv4 в текущий набор
+func (s *IPv4Set) AddIPv4Set(other *IPv4Set) {
+	for ip := range other.set { // Перебираем ключи (тип IPv4)
+		s.AddIPv4(ip) // Добавляем в текущий набор
+	}
+}
+
+// Добавление всех IP-адресов из другого набора IPv6 в текущий набор
+func (s *IPv6Set) AddIPv6Set(other *IPv6Set) {
+	for ip := range other.set { // Перебираем ключи (тип IPv6)
+		s.AddIPv6(ip) // Добавляем в текущий набор
+	}
+}

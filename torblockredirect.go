@@ -21,7 +21,9 @@ type Config struct {
 	Enabled						bool
 	AddressListURL				string
 	UpdateIntervalSeconds		int
-	OnionHostname				string
+	RedirectProtocol			string
+	RedirectHostname			string
+	RedirectSavePath			bool
 	ForwardedHeadersCustomName	string
 }
 
@@ -31,7 +33,9 @@ func CreateConfig() *Config {
 		Enabled:					true,
 		AddressListURL:				"https://check.torproject.org/exit-addresses",
 		UpdateIntervalSeconds:		3600,
-		OnionHostname:				"",
+		RedirectProtocol:			"http://",
+		RedirectHostname:			"",
+		RedirectSavePath:			true,
 		ForwardedHeadersCustomName:	"X-Forwarded-For",
 	}
 }
@@ -47,7 +51,9 @@ type TorBlock struct {
 	blockedIPs					*IPv4Set
 	blockedIPv6s				*IPv6Set
 	client						*http.Client
-	onionHostname				string
+	redirectProtocol			string
+	redirectHostname			string
+	redirectSavePath			bool
 	ForwardedHeadersCustomName	string
 }
 
@@ -75,7 +81,9 @@ func New(ctx context.Context, next http.Handler, config *Config, name string) (h
 		client: &http.Client{
 			Timeout: time.Second * 10,
 		},
-		onionHostname:				config.OnionHostname,
+		redirectProtocol:			config.RedirectProtocol,
+		redirectHostname:			config.RedirectHostname,
+		redirectSavePath:			config.RedirectSavePath,
 		ForwardedHeadersCustomName: config.ForwardedHeadersCustomName,
 	}
 	a.UpdateBlockedIPs()
@@ -106,7 +114,7 @@ func (a *TorBlock) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	isTorBlocked := false
+	isTorBlocked := true
 
 	// Check if the IP is in the blocked IPv4 set
 	if remoteIP.To4() != nil {
@@ -123,9 +131,12 @@ func (a *TorBlock) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	if isTorBlocked {
-		// If onionHostname is set, redirect the user to the .onion address
-		if a.onionHostname != "" {
-			redirectURL := "http://" + a.onionHostname + req.URL.RequestURI()
+		// If redirectHostname is set, redirect the user to the .onion address
+		if a.redirectHostname != "" {
+			redirectURL := a.redirectProtocol + a.redirectHostname
+			if a.redirectSavePath {
+				redirectURL = redirectURL + req.URL.RequestURI()
+			}
 			log.Printf("TorBlockRedirect: redirecting to %s", redirectURL)
 			http.Redirect(rw, req, redirectURL, http.StatusFound)
 			return
@@ -152,18 +163,19 @@ func (a *TorBlock) UpdateWorker() {
 // UpdateBlockedIPs fetches the list of blocked IPs from the addressListURL and updates the blocked IP sets.
 func (a *TorBlock) UpdateBlockedIPs() {
 	// Fetch the list of exit node IPs from the Tor Project's address list
+	log.Printf("TorBlockRedirect: starting update address list: from %s", a.addressListURL)
 	res, err := a.client.Get(a.addressListURL)
 	if err != nil {
-		log.Printf("TorBlockRedirect: failed to update address list: %s from %s", err, a.addressListURL)
+		log.Printf("TorBlockRedirect: failed to update address list: %s", err)
 		return
 	}
 	if res.StatusCode != 200 {
-		log.Printf("TorBlockRedirect: failed to update address list: status code is %d from %s", res.StatusCode, a.addressListURL)
+		log.Printf("TorBlockRedirect: failed to update address list: status code is %d", res.StatusCode)
 		return
 	}
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		log.Printf("TorBlockRedirect: failed to read address list body: %s from %s", err, a.addressListURL)
+		log.Printf("TorBlockRedirect: failed to read address list body: %s", err)
 		return
 	}
 	bodyStr := string(body)
@@ -190,7 +202,10 @@ func (a *TorBlock) UpdateBlockedIPs() {
 	}
 
 	// Update the blocked IP sets with the newly fetched data
-	a.blockedIPs = newIPv4Set
-	a.blockedIPv6s = newIPv6Set
-	log.Printf("TorBlockRedirect: updated blocked IP list (found %d IPv4 addresses, %d IPv6 addresses) from %s", len(newIPv4Set.set), len(newIPv6Set.set), a.addressListURL)
+	a.blockedIPs.AddIPv4Set(newIPv4Set) // Добавляем все новые IPv4-адреса в текущий набор
+	a.blockedIPv6s.AddIPv6Set(newIPv6Set) // Добавляем все новые IPv6-адреса в текущий набор
+	//	a.blockedIPs = newIPv4Set
+	//	a.blockedIPv6s = newIPv6Set
+
+	log.Printf("TorBlockRedirect: updated blocked IP list (found %d IPv4 addresses, %d IPv6 addresses)", len(newIPv4Set.set), len(newIPv6Set.set))
 }
