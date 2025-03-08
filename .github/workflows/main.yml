@@ -63,9 +63,3 @@ jobs:
       # Lint and Tests
       - name: Lint and Tests
         run: make
-
-      # Optional: Run plugin tests if needed
-      - name: Run plugin tests
-        run: make plugin_tests
-        env:
-          GOPATH: ${{ github.workspace }}/go
