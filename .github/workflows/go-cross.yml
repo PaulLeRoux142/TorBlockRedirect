@@ -1,8 +1,14 @@
 name: Go Matrix
-on: [push, pull_request]
+
+on: 
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-
   cross:
     name: Go
     runs-on: ${{ matrix.os }}
@@ -11,7 +17,7 @@ jobs:
 
     strategy:
       matrix:
-        go-version: [1.16, 1.x]
+        go-version: [1.16, 1.17, 1.18]  # Указываем точные версии Go
         os: [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
@@ -30,13 +36,19 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            ~/go/pkg/mod              # Module cache
-            ~/.cache/go-build         # Build cache (Linux)
-            ~/Library/Caches/go-build # Build cache (Mac)
-            '%LocalAppData%\go-build' # Build cache (Windows)
+            ~/go/pkg/mod               # Module cache
+            ~/.cache/go-build          # Build cache (Linux)
+            ~/Library/Caches/go-build  # Build cache (Mac)
+            '%LocalAppData%\go-build'  # Build cache (Windows)
           key: ${{ runner.os }}-${{ matrix.go-version }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-${{ matrix.go-version }}-go-
+
+      # Install golangci-lint
+      - name: Install golangci-lint
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $HOME/go/bin v1.33.0
+        # Установим golangci-lint в $HOME/go/bin, который будет доступен для всех шагов
 
       # Check and install dependencies
       - name: Check and get dependencies
