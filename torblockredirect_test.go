@@ -1,4 +1,4 @@
-package torblock_test
+package TorBlockRedirect_test
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/jpxd/torblock"
+	"github.com/PaulLeRoux142/TorBlockRedirect"  // Ваш модуль
 )
 
 func TestConfig(t *testing.T) {
@@ -17,45 +17,45 @@ func TestConfig(t *testing.T) {
 	})
 
 	// Check default config works
-	cfg := torblock.CreateConfig()
-	_, err := torblock.New(ctx, next, cfg, "torblock")
+	cfg := TorBlockRedirect.CreateConfig()
+	_, err := TorBlockRedirect.New(ctx, next, cfg, "torblock")
 	if err != nil {
 		t.Fatalf("failed to create with default config: %s", err)
 	}
 
 	// Bad URLs have to return an error
-	cfg = torblock.CreateConfig()
+	cfg = TorBlockRedirect.CreateConfig()
 	cfg.AddressListURL = "bad"
-	_, err = torblock.New(ctx, next, cfg, "torblock")
+	_, err = TorBlockRedirect.New(ctx, next, cfg, "torblock")
 	if err == nil {
 		t.Fatal("no error though bad address url in config")
 	}
 
 	// Unreachable URLs dont error but only warn
-	cfg = torblock.CreateConfig()
+	cfg = TorBlockRedirect.CreateConfig()
 	cfg.AddressListURL = "https://badurl.test123/test"
-	_, err = torblock.New(ctx, next, cfg, "torblock")
+	_, err = TorBlockRedirect.New(ctx, next, cfg, "torblock")
 	if err != nil {
 		t.Fatal("unreachable url errored but should have only warned")
 	}
 
 	// Too short update intervals
-	cfg = torblock.CreateConfig()
+	cfg = TorBlockRedirect.CreateConfig()
 	cfg.UpdateIntervalSeconds = 1
-	_, err = torblock.New(ctx, next, cfg, "torblock")
+	_, err = TorBlockRedirect.New(ctx, next, cfg, "torblock")
 	if err == nil {
 		t.Fatal("no error though to low update interval")
 	}
 }
 
 func TestRequests(t *testing.T) {
-	cfg := torblock.CreateConfig()
+	cfg := TorBlockRedirect.CreateConfig()
 	ctx := context.Background()
 	next := http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		rw.WriteHeader(http.StatusNoContent)
 	})
 
-	handler, err := torblock.New(ctx, next, cfg, "torblock")
+	handler, err := TorBlockRedirect.New(ctx, next, cfg, "torblock")
 	if err != nil {
 		t.Fatal(err)
 	}
