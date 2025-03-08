@@ -45,6 +45,8 @@ jobs:
         run: |
           curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $HOME/go/bin v1.33.0
           echo "GolangCI-Lint installed at $HOME/go/bin/golangci-lint"
+        env:
+          GOARCH: amd64  # Явно указываем архитектуру для MacOS
 
       - name: Check and get dependencies
         run: |
