@@ -48,7 +48,7 @@ jobs:
 
       - name: Install Yaegi
         run: |
-          go install github.com/yaegi/yaegi/cmd/yaegi@latest
+          go install github.com/yaegi/yaegi@latest
           echo "Yaegi installed at $HOME/go/bin/yaegi"
 
       - name: Check and get dependencies
