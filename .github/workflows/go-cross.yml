@@ -1,12 +1,12 @@
 name: Go Matrix
 
-on: 
+on:
   push:
     branches:
-      - main
+      - main  # или используйте 'master', в зависимости от вашей основной ветки
   pull_request:
     branches:
-      - main
+      - main  # или 'master'
 
 jobs:
   cross:
@@ -17,9 +17,57 @@ jobs:
 
     strategy:
       matrix:
-        go-version: [1.16, 1.17, 1.18]  # Указываем точные версии Go
+        go-version: [1.16, 1.x]
         os: [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
       # Set up Go environment
-      - name: Set 
+      - name: Set up Go ${{ matrix.go-version }}
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go-version }}
+
+      # Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Cache Go modules
+      - name: Cache Go modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/go/pkg/mod              # Module cache
+            ~/.cache/go-build         # Build cache (Linux)
+            ~/Library/Caches/go-build # Build cache (Mac)
+            '%LocalAppData%\go-build' # Build cache (Windows)
+          key: ${{ runner.os }}-${{ matrix.go-version }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.go-version }}-go-
+
+      # Check and install dependencies
+      - name: Check and get dependencies
+        run: |
+          go mod tidy
+          git diff --exit-code go.mod
+          go mod download
+          go mod vendor
+
+      # Run linting and tests
+      - name: Lint and Tests
+        run: make
+
+      # Run tests using Yaegi
+      - name: Run tests with Yaegi
+        run: make yaegi_test
+        env:
+          GOPATH: ${{ github.workspace }}/go
+
+      # Optionally: Add steps for running plugin tests with new parameters if needed
+      - name: Run plugin tests
+        run: make plugin_tests  # Update this step for your plugin tests if necessary
+        env:
+          GOPATH: ${{ github.workspace }}/go
+
+      # Run Go tests for the entire project
+      - name: Run Go tests
+        run: go test -v -cover ./...
