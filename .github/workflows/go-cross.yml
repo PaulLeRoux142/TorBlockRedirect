@@ -27,7 +27,7 @@ jobs:
 
       # Cache Go modules
       - name: Cache Go modules
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/go/pkg/mod              # Module cache
