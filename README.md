@@ -157,9 +157,9 @@ The plugin supports the following configuration options:
 - `AddressListURL`: URL to fetch the list of Tor exit nodes. Default is `https://check.torproject.org/exit-addresses`.
 - `ForwardedHeadersCustomName`: Header name for the forwarded client IP address. Default is `X-Forwarded-For`.
 
-# Example configuration for OnionHostname:
+# Example configuration for RedirectHostname:
 ```yaml
 torblockredirect:
   enabled: true
-  OnionHostname: "youroniondomain.onion"
+  RedirectHostname: "youroniondomain.onion"
 ```
