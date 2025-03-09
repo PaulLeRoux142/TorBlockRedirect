@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/PaulLeRoux142/TorBlockRedirect"  // Ваш модуль
+	"github.com/PaulLeRoux142/TorBlockRedirect"
 )
 
 func TestConfig(t *testing.T) {
